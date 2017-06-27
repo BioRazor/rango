@@ -8,13 +8,34 @@
   <body>
     <h1>Rango Says...</h1>
     <div class="">
-      Hey there partner!<br>
-      <strong>{{ boldmessage }}</strong>
+      Hey there partner!
     </div>
     <div class="">
+      <strong>Most Liked Categories</strong>
+      {% if categories %}
+          <ul>
+            {% for category in categories %}
+                <li>
+                  <a href="/rango/category/{{ category.slug }}">{{ category.name }}</a>
+                </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <strong>There are no cateogories present.</strong>
+      {% endif %}
+
+      {% if most_viewed_pages %}
+      <strong>There is the most viewed pages</strong>
+      <ul>
+          {% for page in most_viewed_pages %}
+          <li><a href="{{ page.url }}">{{ page.title }}</a></li>
+          {% endfor %}
+      </ul>
+      {% else %}
+      <strong>No most viewed pages for now.</strong>
+      {% endif %}
+
       <a href="/rango/about/">About Rango</a>
-      <img src="{% static 'images/prueba.png' %}" alt="Imagen de Prueba">
-      
     </div>
   </body>
 </html>
