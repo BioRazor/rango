@@ -2,9 +2,15 @@
 
 {% block body_block %}
   <h1>Rango Says...</h1>
+  
   <div class="">
-    Hey there partner!
+    {% if user.is_authenticated %}
+        Howdy {{ user.username }}
+        {% else %}
+        Hey there partner!
+    {% endif %}
   </div>
+
   <div class="">
     <strong>Most Liked Categories</strong>
     {% if categories %}
@@ -28,6 +34,6 @@
     </ul>
     {% else %}
     <strong>No most viewed pages for now.</strong>
-    {% endif %}    
+    {% endif %}
   </div>
 {% endblock body_block %}
