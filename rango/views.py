@@ -3,9 +3,24 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from datetime import datetime
 
 from rango.models import Category, Page
 from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
+
+def visitor_cookie_handler(request, response):
+    visit = int(request.COOKIES.get('visit', 1))
+
+    last_visit_cookie = request.COOKIES.get('last_visit', str(datetime.now()))
+    last_visit_time = datetime.strptime(last_visit_cookie[:-7], '%Y-%m-%d %H:%M:%S')
+
+    if (datetime.now() - last_visit_time).days > 0:
+        visit +=1
+        response.set_cookie('last_visit', str(datetime.now()))
+    else:
+        visit = 1
+        response.set_cookie('last_visit', last_visit_cookie)
+    response.set_cookie('last_visit', last_visit_cookie)
 
 def index(request):
     category_list = Category.objects.order_by('-likes')[:5]
@@ -14,10 +29,15 @@ def index(request):
         'categories' : category_list,
         'most_viewed_pages' : most_viewed_pages
     }
-
-    return render(request, 'rango/index.html', context=context_dict)
+    #request.session.set_test_cookie()
+    response = render(request, 'rango/index.html', context=context_dict)
+    visitor_cookie_handler(request, response)
+    return response
 
 def about(request):
+    #if request.session.test_cookie_worked():
+    #    print("Test cookie worked")
+        #request.session.delete_test_cookie()
     context_dict = {'title' : 'About Rango', 'variable' : 'Here a context variable'}
 
     return render(request, 'rango/about.html', context = context_dict)
