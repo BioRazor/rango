@@ -8,19 +8,27 @@ from datetime import datetime
 from rango.models import Category, Page
 from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 
-def visitor_cookie_handler(request, response):
-    visit = int(request.COOKIES.get('visit', 1))
+def get_server_side_cookie(request, cookie, default_val=None):
+    val = request.session.get(cookie)
+    if not val:
+        val = default_val
+    return val
 
-    last_visit_cookie = request.COOKIES.get('last_visit', str(datetime.now()))
+
+def visitor_cookie_handler(request):
+    visits = int(get_server_side_cookie(request, 'visits', '1'))
+
+    last_visit_cookie = get_server_side_cookie(request, 'last_visit', str(datetime.now()))
     last_visit_time = datetime.strptime(last_visit_cookie[:-7], '%Y-%m-%d %H:%M:%S')
 
     if (datetime.now() - last_visit_time).days > 0:
-        visit +=1
-        response.set_cookie('last_visit', str(datetime.now()))
+        visits +=1
+        request.session['last_visit'] = str(datetime.now())
     else:
         visit = 1
-        response.set_cookie('last_visit', last_visit_cookie)
-    response.set_cookie('last_visit', last_visit_cookie)
+        request.session['last_visit'] = last_visit_cookie
+
+    request.session['visits'] = visits
 
 def index(request):
     category_list = Category.objects.order_by('-likes')[:5]
@@ -30,15 +38,22 @@ def index(request):
         'most_viewed_pages' : most_viewed_pages
     }
     #request.session.set_test_cookie()
+    visitor_cookie_handler(request)
+    context_dict['visits'] = request.session['visits']
     response = render(request, 'rango/index.html', context=context_dict)
-    visitor_cookie_handler(request, response)
     return response
 
 def about(request):
     #if request.session.test_cookie_worked():
     #    print("Test cookie worked")
         #request.session.delete_test_cookie()
-    context_dict = {'title' : 'About Rango', 'variable' : 'Here a context variable'}
+    if request.session['visits']:
+        visits = request.session['visits']
+    else:
+        visitor_cookie_handler(request)
+        visits = request.session['visits']
+        
+    context_dict = {'title' : 'About Rango', 'variable' : 'Here a context variable', 'visits' : visits}
 
     return render(request, 'rango/about.html', context = context_dict)
 

@@ -1,7 +1,14 @@
 {% extends "rango/base.html" %}
 {% block title_block %}About{% endblock title_block %}
 {% block body_block %}
-  <h1>About Rango</h1>
-  <p>This is a webapp created for practice Django.</p>
-  <img src="{{ MEDIA_URL }}/prueba.png" alt="Prueba">
+  <div class="">
+    <h1>About Rango</h1>
+    <p>This is a webapp created for practice Django.</p>
+  </div>
+  <div class="">
+    <p>
+      <strong>Pss! You have been here {{ visits }} times</strong>
+    </p>
+  </div>
+
 {% endblock body_block %}
